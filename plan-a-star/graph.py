@@ -28,6 +28,7 @@ class Graph:
         # we need to build a graph from the scenes.
         self._load_scenes() # data looks like an array of dictionaries, each dictionary contains the information for a single node.
         self._build_graph()
+        self.serialize("graph.json")
     
     def _load_paligemma(self):
         bnb_config = BitsAndBytesConfig(
