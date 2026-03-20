@@ -3,7 +3,6 @@
 import os
 import json
 import random
-import re
 import numpy as np
 import torch
 from PIL import Image
@@ -12,7 +11,7 @@ from peft import PeftModel
 from tqdm import tqdm
 
 MODEL_ID   = "google/paligemma2-3b-pt-224"
-CHECKPOINT = "/home/alekseyvalouev/goalnav/language-distance/language-distance-paligemma/checkpoint-1400"
+CHECKPOINT = "/home/alekseyvalouev/goalnav/language-distance/binary-reachability-paligemma/checkpoint-3900"
 
 class Graph:
     def __init__(self, scenes, annotation_folder, sparsification_steps=4, drop_modality_p=0.5):
@@ -68,16 +67,16 @@ class Graph:
 
             for img in range(0, max_idx, self.sparsification_steps):
                 curr_image = os.path.join(folder, images[img])
-                curr_annotation = self.annotations[scene][curr_image]
+                curr_annotation = self.annotations[scene][images[img]]
                 x = random.random()
                 if x < self.drop_modality_p:
                     y = random.random()
                     if y < self.drop_modality_p:
-                        self.structured_data.append({"image": curr_image})
+                        self.structured_data.append({"id" : int(images[img].split(".")[0]), "image": curr_image})
                     else:
-                        self.structured_data.append({"landmarks": curr_annotation})
+                        self.structured_data.append({"id" : int(images[img].split(".")[0]), "landmarks": curr_annotation})
                 else:
-                    self.structured_data.append({"image": curr_image, "landmarks": curr_annotation})
+                    self.structured_data.append({"id" : int(images[img].split(".")[0]), "image": curr_image, "landmarks": curr_annotation})
         
         return self.structured_data
 
@@ -115,6 +114,7 @@ class Graph:
                     "node_id": node.node_id,
                     "info": node.info,
                     "modalities": node.modalities,
+                    "subnodes": node.subnodes,
                     "connections": [
                         {"modality": m, "other_node_id": other.node_id, "other_modality": om}
                         for m, other, om in node.connections
@@ -138,6 +138,7 @@ class Graph:
         instance.nodes = [Node(n["node_id"], n["info"]) for n in data["nodes"]]
         node_by_id = {node.node_id: node for node in instance.nodes}
         for n, node in zip(data["nodes"], instance.nodes):
+            node.subnodes = n.get("subnodes", node.subnodes)
             for conn in n["connections"]:
                 node.add_connection(conn["modality"], node_by_id[conn["other_node_id"]], conn["other_modality"])
         return instance
@@ -189,18 +190,17 @@ class Graph:
             end_landmarks_str = f"Ending landmarks: {end_landmarks_str}"
             end_prompt += end_landmarks_str
 
-        prompt = f"answer en {'<image> ' if len(images) > 0 else ''}{start_prompt} {end_prompt} What is the temporal distance?\n"
+        prompt = f"answer en {'<image> ' if len(images) == 0 else ''}{start_prompt} {end_prompt} What is the temporal distance?\n"
 
         prompt_data = {
             "image": images if len(images) > 0 else [np.zeros((224, 224, 3), dtype=np.uint8)],
             "prefix": prompt,
-            "suffix": f"{label}"
         }
 
         response = self.ask(prompt_data)
-        return response < 16
+        return response == "1"
     
-    def ask(self, prompt_data) -> int:
+    def ask(self, prompt_data) -> str:
         images_pil = [Image.fromarray(img.astype(np.uint8)) for img in prompt_data["image"]]
         inputs = self.processor(
             text=prompt_data["prefix"],
@@ -215,9 +215,7 @@ class Graph:
             output_ids = self.model.generate(**inputs, max_new_tokens=10, do_sample=False)
 
         input_len = inputs["input_ids"].shape[1]
-        raw = self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)[0].strip()
-        m = re.search(r"-?\d+", raw)
-        return int(m.group()) if m else None
+        return self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)[0].strip()
 
 class Node:
     def __init__(self, node_id, info):
@@ -225,13 +223,16 @@ class Node:
         self.node_id = node_id
         self.info = info
         self.modalities = []
+        self.subnodes = {}
         if "image" in info.keys():
             self.modalities.append("V")
+            self.subnodes["V"] = {"image": info["image"]}
         if "landmarks" in info.keys():
             self.modalities.append("L")
+            self.subnodes["L"] = {"landmarks": info["landmarks"]}
         if "image" in info.keys() and "landmarks" in info.keys():
             self.modalities.append("VL")
-        
+            self.subnodes["VL"] = {"image": info["image"], "landmarks": info["landmarks"]}
         self.connections = [] # triple (modality, other_node, other_modality)
     
     def add_connection(self, modality, other_node, other_modality):
