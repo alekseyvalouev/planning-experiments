@@ -14,10 +14,10 @@ MODEL_ID   = "google/paligemma2-3b-pt-224"
 CHECKPOINT = "/home/alekseyvalouev/goalnav/language-distance/binary-reachability-paligemma/checkpoint-3900"
 
 class Graph:
-    def __init__(self, scenes, annotation_folder, sparsification_steps=4, drop_modality_p=0.5):
+    def __init__(self, scenes, annotation_folder, sparsification_steps=4, drop_modality_p=0.5, dummy=False):
         self.model_id = MODEL_ID
         self.checkpoint = CHECKPOINT
-
+        self.dummy = dummy
         self.scenes = scenes
         self.annotation_folder = annotation_folder
         self.sparsification_steps = sparsification_steps
@@ -189,6 +189,9 @@ class Graph:
             end_landmarks_str = " ".join([f"{i+1}. {landmark}" for i, landmark in enumerate(other.info["landmarks"])])
             end_landmarks_str = f"Ending landmarks: {end_landmarks_str}"
             end_prompt += end_landmarks_str
+        
+        if len(images) == 0:
+            return False
 
         prompt = f"answer en {'<image> ' if len(images) == 0 else ''}{start_prompt} {end_prompt} What is the temporal distance?\n"
 
@@ -197,25 +200,29 @@ class Graph:
             "prefix": prompt,
         }
 
-        response = self.ask(prompt_data)
+        response = self.ask(prompt_data, dummy=self.dummy)
         return response == "1"
     
-    def ask(self, prompt_data) -> str:
-        images_pil = [Image.fromarray(img.astype(np.uint8)) for img in prompt_data["image"]]
-        inputs = self.processor(
-            text=prompt_data["prefix"],
-            images=images_pil,
-            return_tensors="pt",
-            padding=True,
-        )
-        inputs["pixel_values"] = inputs["pixel_values"].to(torch.float16)
-        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
+    def ask(self, prompt_data, dummy=False) -> str:
+        if not dummy:
+            images_pil = [Image.fromarray(img.astype(np.uint8)) for img in prompt_data["image"]]
+            inputs = self.processor(
+                text=prompt_data["prefix"],
+                images=images_pil,
+                return_tensors="pt",
+                padding=True,
+            )
+            inputs["pixel_values"] = inputs["pixel_values"].to(torch.float16)
+            inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
 
-        with torch.no_grad():
-            output_ids = self.model.generate(**inputs, max_new_tokens=10, do_sample=False)
+            with torch.no_grad():
+                output_ids = self.model.generate(**inputs, max_new_tokens=10, do_sample=False)
 
-        input_len = inputs["input_ids"].shape[1]
-        return self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)[0].strip()
+            input_len = inputs["input_ids"].shape[1]
+            return self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)[0].strip()
+        else:
+            x = random.random()
+            return "1" if x < 0.01 else "0"
 
 class Node:
     def __init__(self, node_id, info):
@@ -240,5 +247,5 @@ class Node:
 
 
 if __name__ == "__main__":
-    graph = Graph(scenes=["Dec-06-2022-bww8_00000007_0"], annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test")
+    graph = Graph(scenes=["Dec-06-2022-bww8_00000007_0"], annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test", dummy=False)
     

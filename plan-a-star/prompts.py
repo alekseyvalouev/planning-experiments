@@ -1,3 +1,3 @@
 TASK_ALIGNMENT_PROMPT = """
-You are a navigation planning model whose task is to grade alignment between a sequence of navigation subtasks (a plan) composed of text and image context, and a task (also potentially composed of text and image context). Your objective is to determine how well the plan is aligned with the task (on a 1-10) scale. Your response should be a single integer between 1 and 10.
+Grade the alignment between the plan (temporally ordered sequence of visited location descriptions) and the task (a description of steps to be taken). Your response should be a single integer between 1 and 100, representing how closely the plan aligns with the task. The steps taken in the plan must be in the same order as the associated instructions in the task. 
 """
