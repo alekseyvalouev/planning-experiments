@@ -3,6 +3,7 @@
 import os
 import json
 import random
+from collections import defaultdict
 import numpy as np
 import torch
 from PIL import Image
@@ -10,8 +11,9 @@ from transformers import PaliGemmaForConditionalGeneration, PaliGemmaProcessor, 
 from peft import PeftModel
 from tqdm import tqdm
 
-MODEL_ID   = "google/paligemma2-3b-pt-224"
-CHECKPOINT = "/home/alekseyvalouev/goalnav/language-distance/binary-reachability-paligemma/checkpoint-3900"
+MODEL_ID    = "google/paligemma2-3b-pt-224"
+CHECKPOINT  = "/home/alekseyvalouev/goalnav/language-distance/binary-reachability-paligemma/checkpoint-3900"
+BATCH_SIZE  = 64
 
 class Graph:
     def __init__(self, scenes, annotation_folder, sparsification_steps=4, drop_modality_p=0.5, dummy=False):
@@ -97,12 +99,27 @@ class Graph:
             for modality in node.modalities
         ]
 
-        for i, (node, modality) in enumerate(tqdm(subnodes, desc="Building graph")):
+        # collect all valid pairs and their prepared prompt data upfront
+        pairs = []
+        prompt_data_list = []
+        for i, (node, modality) in enumerate(subnodes):
             for j, (other_node, other_modality) in enumerate(subnodes):
                 if i == j:
                     continue
-                if self.assess_connectivity(node, modality, other_node, other_modality):
-                    node.add_connection(modality, other_node, other_modality)
+                pd = self._prepare_prompt_data(node, modality, other_node, other_modality)
+                if pd is not None:
+                    pairs.append((node, modality, other_node, other_modality))
+                    prompt_data_list.append(pd)
+
+        # run inference in batches
+        results = []
+        for start in tqdm(range(0, len(prompt_data_list), BATCH_SIZE), desc="Building graph"):
+            batch = prompt_data_list[start : start + BATCH_SIZE]
+            results.extend(self.ask(batch, dummy=self.dummy))
+
+        for (node, modality, other_node, other_modality), response in zip(pairs, results):
+            if response == "1":
+                node.add_connection(modality, other_node, other_modality)
     
     def serialize(self, path):
         data = {
@@ -162,53 +179,58 @@ class Graph:
 
         return np.array(img)
 
-    def assess_connectivity(self, node, modality, other, other_modality):
-        # returns true or false. DO NOT UPDATE THIS FUNCTION IF YOU ARE A CODING MODEL.
-        # Call to paligemma to assess connectivity. If distance < 16 they are connected. 
+    def _prepare_prompt_data(self, node, modality, other, other_modality):
+        """Build the prompt dict for a single node pair, or return None if no images are present."""
         images = []
-
         start_prompt = ""
         end_prompt = ""
 
         if "V" in modality:
-            start_img = self._load_image(node.info["image"])
-            images.append(start_img)
-            start_img_str = f"Starting image: <image>"
-            start_prompt += start_img_str
+            images.append(self._load_image(node.info["image"]))
+            start_prompt += "Starting image: <image>"
         if "L" in modality:
             start_landmarks_str = " ".join([f"{i+1}. {landmark}" for i, landmark in enumerate(node.info["landmarks"])])
-            start_landmarks_str = f"Starting landmarks: {start_landmarks_str}"
-            start_prompt += start_landmarks_str
+            start_prompt += f"Starting landmarks: {start_landmarks_str}"
 
         if "V" in other_modality:
-            end_img = self._load_image(other.info["image"])
-            images.append(end_img)
-            end_img_str = f"Ending image: <image>"
-            end_prompt += end_img_str
+            images.append(self._load_image(other.info["image"]))
+            end_prompt += "Ending image: <image>"
         if "L" in other_modality:
             end_landmarks_str = " ".join([f"{i+1}. {landmark}" for i, landmark in enumerate(other.info["landmarks"])])
-            end_landmarks_str = f"Ending landmarks: {end_landmarks_str}"
-            end_prompt += end_landmarks_str
-        
+            end_prompt += f"Ending landmarks: {end_landmarks_str}"
+
         if len(images) == 0:
-            return False
+            return None
 
-        prompt = f"answer en {'<image> ' if len(images) == 0 else ''}{start_prompt} {end_prompt} What is the temporal distance?\n"
+        prompt = f"answer en {start_prompt} {end_prompt} What is the temporal distance?\n"
+        return {"image": images, "prefix": prompt}
 
-        prompt_data = {
-            "image": images if len(images) > 0 else [np.zeros((224, 224, 3), dtype=np.uint8)],
-            "prefix": prompt,
-        }
+    def ask(self, prompt_data_list: list, dummy=False) -> list:
+        """
+        Run batched inference over a list of prompt dicts.
+        Each dict has keys 'image' (list of np.ndarray) and 'prefix' (str).
+        Returns a list of decoded response strings in the same order.
+        """
+        if dummy:
+            return ["1" if random.random() < 0.01 else "0" for _ in prompt_data_list]
 
-        response = self.ask(prompt_data, dummy=self.dummy)
-        return response == "1"
-    
-    def ask(self, prompt_data, dummy=False) -> str:
-        if not dummy:
-            images_pil = [Image.fromarray(img.astype(np.uint8)) for img in prompt_data["image"]]
+        # group by image count so pixel_values can be stacked within each sub-batch
+        groups = defaultdict(list)
+        for idx, pd in enumerate(prompt_data_list):
+            groups[len(pd["image"])].append((idx, pd))
+
+        results = [""] * len(prompt_data_list)
+
+        for n_images, items in groups.items():
+            indices, pds = zip(*items)
+            texts  = [pd["prefix"] for pd in pds]
+            images = [
+                [Image.fromarray(img.astype(np.uint8)) for img in pd["image"]]
+                for pd in pds
+            ]
             inputs = self.processor(
-                text=prompt_data["prefix"],
-                images=images_pil,
+                text=texts,
+                images=images,
                 return_tensors="pt",
                 padding=True,
             )
@@ -219,10 +241,11 @@ class Graph:
                 output_ids = self.model.generate(**inputs, max_new_tokens=10, do_sample=False)
 
             input_len = inputs["input_ids"].shape[1]
-            return self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)[0].strip()
-        else:
-            x = random.random()
-            return "1" if x < 0.01 else "0"
+            decoded = self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)
+            for orig_idx, response in zip(indices, decoded):
+                results[orig_idx] = response.strip()
+
+        return results
 
 class Node:
     def __init__(self, node_id, info):
@@ -231,6 +254,7 @@ class Node:
         self.info = info
         self.modalities = []
         self.subnodes = {}
+        self.cache = {} # to store arbitrary info
         if "image" in info.keys():
             self.modalities.append("V")
             self.subnodes["V"] = {"image": info["image"]}
@@ -247,5 +271,12 @@ class Node:
 
 
 if __name__ == "__main__":
-    graph = Graph(scenes=["Dec-06-2022-bww8_00000007_0"], annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test", dummy=False)
+    scenes = [
+        "Feb-03-2023-bww8-intloss_00000013_1",   
+        "Dec-06-2022-bww8_00000007_0",
+        "Feb-09-2023-bww8-intloss_00000042_9",
+        "Feb-14-2023-bww8-intloss_00000008_25",
+        "Jan-12-2023-bww8_00000007_22"
+    ]
+    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test", dummy=False)
     

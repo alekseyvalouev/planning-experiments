@@ -1,3 +1,94 @@
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 4330.72it/s]
-Loading weights:   0%|          | 0/727 [00:00<?, ?it/s]Loading weights:   0%|          | 1/727 [00:00<02:13,  5.46it/s]Loading weights:   3%|▎         | 23/727 [00:00<00:07, 90.50it/s]Loading weights:   9%|▉         | 64/727 [00:00<00:03, 189.06it/s]Loading weights:  12%|█▏        | 86/727 [00:00<00:03, 197.90it/s]Loading weights:  15%|█▌        | 110/727 [00:00<00:02, 210.05it/s]Loading weights:  18%|█▊        | 133/727 [00:00<00:02, 207.47it/s]Loading weights:  22%|██▏       | 162/727 [00:00<00:02, 231.95it/s]Loading weights:  26%|██▌       | 186/727 [00:00<00:02, 229.92it/s]Loading weights:  29%|██▉       | 210/727 [00:01<00:02, 209.81it/s]Loading weights:  32%|███▏      | 236/727 [00:01<00:02, 222.46it/s]Loading weights:  36%|███▌      | 259/727 [00:01<00:02, 217.23it/s]Loading weights:  39%|███▉      | 284/727 [00:01<00:01, 225.77it/s]Loading weights:  44%|████▍     | 319/727 [00:01<00:01, 257.78it/s]Loading weights:  49%|████▉     | 355/727 [00:01<00:01, 284.57it/s]Loading weights:  64%|██████▍   | 468/727 [00:01<00:00, 528.51it/s]Loading weights: 100%|██████████| 727/727 [00:01<00:00, 405.88it/s]
-Building graph:   0%|          | 0/140 [00:00<?, ?it/s]Building graph:   1%|          | 1/140 [00:23<55:02, 23.76s/it]Building graph:   1%|▏         | 2/140 [00:45<52:07, 22.66s/it]Building graph:   2%|▏         | 3/140 [01:00<43:28, 19.04s/it]Building graph:   3%|▎         | 4/140 [01:23<46:54, 20.69s/it]Building graph:   4%|▎         | 5/140 [01:37<40:50, 18.15s/it]Building graph:   4%|▍         | 6/140 [01:50<36:49, 16.49s/it]Building graph:   5%|▌         | 7/140 [02:11<39:57, 18.02s/it]Building graph:   6%|▌         | 8/140 [02:25<36:22, 16.53s/it]Building graph:   6%|▋         | 9/140 [02:46<39:09, 17.94s/it]Building graph:   7%|▋         | 10/140 [03:07<41:25, 19.12s/it]Building graph:   8%|▊         | 11/140 [03:21<37:12, 17.30s/it]Building graph:   9%|▊         | 12/140 [03:42<39:22, 18.46s/it]Building graph:   9%|▉         | 13/140 [04:03<40:49, 19.29s/it]Building graph:  10%|█         | 14/140 [04:16<36:38, 17.45s/it]Building graph:  11%|█         | 15/140 [04:37<38:44, 18.59s/it]Building graph:  11%|█▏        | 16/140 [04:58<40:04, 19.39s/it]Building graph:  12%|█▏        | 17/140 [05:12<35:57, 17.54s/it]Building graph:  13%|█▎        | 18/140 [05:33<37:51, 18.62s/it]Building graph:  14%|█▎        | 19/140 [05:46<34:17, 17.01s/it]Building graph:  14%|█▍        | 20/140 [06:07<36:29, 18.24s/it]Building graph:  15%|█▌        | 21/140 [06:21<33:13, 16.75s/it]Building graph:  16%|█▌        | 22/140 [06:42<35:26, 18.02s/it]Building graph:  16%|█▋        | 23/140 [07:03<36:54, 18.93s/it]Building graph:  17%|█▋        | 24/140 [07:24<37:56, 19.62s/it]Building graph:  18%|█▊        | 25/140 [07:47<39:38, 20.68s/it]Building graph:  19%|█▊        | 26/140 [08:01<35:16, 18.57s/it]Building graph:  19%|█▉        | 27/140 [08:22<36:22, 19.32s/it]Building graph:  20%|██        | 28/140 [08:35<32:40, 17.50s/it]Building graph:  21%|██        | 29/140 [08:56<34:24, 18.60s/it]Building graph:  21%|██▏       | 30/140 [09:18<36:06, 19.70s/it]Building graph:  22%|██▏       | 31/140 [09:32<32:27, 17.86s/it]Building graph:  23%|██▎       | 32/140 [09:54<34:19, 19.07s/it]Building graph:  24%|██▎       | 33/140 [10:15<35:03, 19.66s/it]Building graph:  24%|██▍       | 34/140 [10:28<31:25, 17.78s/it]Building graph:  25%|██▌       | 35/140 [10:50<33:04, 18.90s/it]Building graph:  26%|██▌       | 36/140 [11:11<34:11, 19.73s/it]Building graph:  26%|██▋       | 37/140 [11:25<30:33, 17.80s/it]Building graph:  27%|██▋       | 38/140 [11:46<31:58, 18.81s/it]Building graph:  28%|██▊       | 39/140 [12:07<32:46, 19.47s/it]Building graph:  29%|██▊       | 40/140 [12:28<33:16, 19.97s/it]Building graph:  29%|██▉       | 41/140 [12:41<29:40, 17.98s/it]Building graph:  30%|███       | 42/140 [13:03<30:59, 18.98s/it]Building graph:  31%|███       | 43/140 [13:24<31:53, 19.73s/it]Building graph:  31%|███▏      | 44/140 [13:46<32:22, 20.24s/it]Building graph:  32%|███▏      | 45/140 [14:07<32:32, 20.55s/it]Building graph:  33%|███▎      | 46/140 [14:20<28:43, 18.33s/it]Building graph:  34%|███▎      | 47/140 [14:41<29:42, 19.16s/it]Building graph:  34%|███▍      | 48/140 [15:02<30:17, 19.76s/it]Building graph:  35%|███▌      | 49/140 [15:15<26:57, 17.77s/it]Building graph:  36%|███▌      | 50/140 [15:29<24:38, 16.43s/it]Building graph:  36%|███▋      | 51/140 [15:50<26:24, 17.80s/it]Building graph:  37%|███▋      | 52/140 [16:03<24:12, 16.50s/it]Building graph:  38%|███▊      | 53/140 [16:24<25:58, 17.91s/it]Building graph:  39%|███▊      | 54/140 [16:45<27:00, 18.85s/it]Building graph:  39%|███▉      | 55/140 [17:07<27:40, 19.54s/it]Building graph:  40%|████      | 56/140 [17:20<24:40, 17.62s/it]Building graph:  41%|████      | 57/140 [17:41<25:52, 18.70s/it]Building graph:  41%|████▏     | 58/140 [18:02<26:38, 19.49s/it]Building graph:  42%|████▏     | 59/140 [18:15<23:45, 17.60s/it]Building graph:  43%|████▎     | 60/140 [18:38<25:22, 19.04s/it]Building graph:  44%|████▎     | 61/140 [19:00<26:14, 19.93s/it]Building graph:  44%|████▍     | 62/140 [19:13<23:21, 17.97s/it]Building graph:  45%|████▌     | 63/140 [19:34<24:11, 18.85s/it]Building graph:  46%|████▌     | 64/140 [19:47<21:43, 17.16s/it]Building graph:  46%|████▋     | 65/140 [20:08<22:52, 18.29s/it]Building graph:  47%|████▋     | 66/140 [20:21<20:36, 16.70s/it]Building graph:  48%|████▊     | 67/140 [20:42<21:55, 18.03s/it]Building graph:  49%|████▊     | 68/140 [21:04<22:45, 18.96s/it]Building graph:  49%|████▉     | 69/140 [21:16<20:18, 17.16s/it]Building graph:  50%|█████     | 70/140 [21:37<21:21, 18.30s/it]Building graph:  51%|█████     | 71/140 [21:58<21:57, 19.10s/it]Building graph:  51%|█████▏    | 72/140 [22:12<19:37, 17.32s/it]Building graph:  52%|█████▏    | 73/140 [22:32<20:30, 18.36s/it]Building graph:  53%|█████▎    | 74/140 [22:54<21:08, 19.21s/it]Building graph:  54%|█████▎    | 75/140 [23:07<18:47, 17.35s/it]Building graph:  54%|█████▍    | 76/140 [23:28<19:39, 18.43s/it]Building graph:  55%|█████▌    | 77/140 [23:48<20:08, 19.19s/it]Building graph:  56%|█████▌    | 78/140 [24:09<20:22, 19.72s/it]Building graph:  56%|█████▋    | 79/140 [24:23<18:03, 17.76s/it]Building graph:  57%|█████▋    | 80/140 [24:44<18:42, 18.70s/it]Building graph:  58%|█████▊    | 81/140 [24:57<16:43, 17.01s/it]Building graph:  59%|█████▊    | 82/140 [25:17<17:32, 18.15s/it]Building graph:  59%|█████▉    | 83/140 [25:31<15:54, 16.74s/it]Building graph:  60%|██████    | 84/140 [25:52<16:49, 18.02s/it]Building graph:  61%|██████    | 85/140 [26:05<15:09, 16.54s/it]Building graph:  61%|██████▏   | 86/140 [26:18<13:57, 15.50s/it]Building graph:  62%|██████▏   | 87/140 [26:39<15:13, 17.24s/it]Building graph:  63%|██████▎   | 88/140 [26:53<13:55, 16.07s/it]Building graph:  64%|██████▎   | 89/140 [27:13<14:52, 17.49s/it]Building graph:  64%|██████▍   | 90/140 [27:34<15:27, 18.55s/it]Building graph:  65%|██████▌   | 91/140 [27:48<13:48, 16.91s/it]Building graph:  66%|██████▌   | 92/140 [28:08<14:28, 18.09s/it]Building graph:  66%|██████▋   | 93/140 [28:29<14:50, 18.95s/it]Building graph:  67%|██████▋   | 94/140 [28:50<14:56, 19.49s/it]Building graph:  68%|██████▊   | 95/140 [29:11<14:55, 19.89s/it]Building graph:  69%|██████▊   | 96/140 [29:32<14:49, 20.22s/it]Building graph:  69%|██████▉   | 97/140 [29:53<14:38, 20.44s/it]Building graph:  70%|███████   | 98/140 [30:06<12:45, 18.24s/it]Building graph:  71%|███████   | 99/140 [30:27<13:00, 19.04s/it]Building graph:  71%|███████▏  | 100/140 [30:40<11:28, 17.21s/it]Building graph:  72%|███████▏  | 101/140 [31:01<11:57, 18.39s/it]Building graph:  73%|███████▎  | 102/140 [31:14<10:36, 16.76s/it]Building graph:  74%|███████▎  | 103/140 [31:35<11:05, 17.99s/it]Building graph:  74%|███████▍  | 104/140 [31:48<09:54, 16.53s/it]Building graph:  75%|███████▌  | 105/140 [32:09<10:24, 17.83s/it]Building graph:  76%|███████▌  | 106/140 [32:22<09:19, 16.47s/it]Building graph:  76%|███████▋  | 107/140 [32:43<09:46, 17.77s/it]Building graph:  77%|███████▋  | 108/140 [33:04<09:59, 18.73s/it]Building graph:  78%|███████▊  | 109/140 [33:17<08:46, 16.98s/it]Building graph:  79%|███████▊  | 110/140 [33:38<09:04, 18.15s/it]Building graph:  79%|███████▉  | 111/140 [33:59<09:11, 19.01s/it]Building graph:  80%|████████  | 112/140 [34:12<08:01, 17.21s/it]Building graph:  81%|████████  | 113/140 [34:33<08:14, 18.31s/it]Building graph:  81%|████████▏ | 114/140 [34:46<07:14, 16.71s/it]Building graph:  82%|████████▏ | 115/140 [35:06<07:28, 17.94s/it]Building graph:  83%|████████▎ | 116/140 [35:20<06:36, 16.51s/it]Building graph:  84%|████████▎ | 117/140 [35:40<06:49, 17.81s/it]Building graph:  84%|████████▍ | 118/140 [35:54<06:04, 16.55s/it]Building graph:  85%|████████▌ | 119/140 [36:07<05:25, 15.52s/it]Building graph:  86%|████████▌ | 120/140 [36:28<05:41, 17.10s/it]Building graph:  86%|████████▋ | 121/140 [36:41<05:01, 15.89s/it]Building graph:  87%|████████▋ | 122/140 [37:02<05:13, 17.39s/it]Building graph:  88%|████████▊ | 123/140 [37:15<04:33, 16.06s/it]Building graph:  89%|████████▊ | 124/140 [37:36<04:40, 17.50s/it]Building graph:  89%|████████▉ | 125/140 [37:56<04:37, 18.51s/it]Building graph:  90%|█████████ | 126/140 [38:10<03:58, 17.00s/it]Building graph:  91%|█████████ | 127/140 [38:31<03:56, 18.22s/it]Building graph:  91%|█████████▏| 128/140 [38:52<03:48, 19.01s/it]Building graph:  92%|█████████▏| 129/140 [39:05<03:09, 17.21s/it]Building graph:  93%|█████████▎| 130/140 [39:26<03:03, 18.37s/it]Building graph:  94%|█████████▎| 131/140 [39:47<02:52, 19.12s/it]Building graph:  94%|█████████▍| 132/140 [40:00<02:18, 17.32s/it]Building graph:  95%|█████████▌| 133/140 [40:21<02:08, 18.42s/it]Building graph:  96%|█████████▌| 134/140 [40:42<01:55, 19.19s/it]Building graph:  96%|█████████▋| 135/140 [41:03<01:38, 19.72s/it]Building graph:  97%|█████████▋| 136/140 [41:16<01:10, 17.73s/it]Building graph:  98%|█████████▊| 137/140 [41:37<00:56, 18.75s/it]Building graph:  99%|█████████▊| 138/140 [41:58<00:38, 19.38s/it]Building graph:  99%|█████████▉| 139/140 [42:11<00:17, 17.48s/it]Building graph: 100%|██████████| 140/140 [42:32<00:00, 18.58s/it]Building graph: 100%|██████████| 140/140 [42:32<00:00, 18.23s/it]
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 2092.44it/s]
+Loading weights:   0%|          | 0/727 [00:00<?, ?it/s]Loading weights:   0%|          | 3/727 [00:00<00:28, 25.79it/s]Loading weights:   5%|▍         | 36/727 [00:00<00:03, 188.27it/s]Loading weights:   8%|▊         | 60/727 [00:00<00:03, 210.56it/s]Loading weights:  12%|█▏        | 87/727 [00:00<00:02, 230.48it/s]Loading weights:  15%|█▌        | 111/727 [00:00<00:02, 231.13it/s]Loading weights:  19%|█▊        | 135/727 [00:00<00:02, 207.45it/s]Loading weights:  22%|██▏       | 157/727 [00:00<00:02, 193.24it/s]Loading weights:  26%|██▋       | 192/727 [00:00<00:02, 233.78it/s]Loading weights:  30%|██▉       | 218/727 [00:01<00:02, 239.95it/s]Loading weights:  33%|███▎      | 243/727 [00:01<00:02, 239.91it/s]Loading weights:  37%|███▋      | 268/727 [00:01<00:02, 213.61it/s]Loading weights:  40%|████      | 291/727 [00:01<00:02, 213.51it/s]Loading weights:  46%|████▌     | 331/727 [00:01<00:01, 259.63it/s]Loading weights:  51%|█████     | 371/727 [00:01<00:01, 296.59it/s]Loading weights:  83%|████████▎ | 605/727 [00:01<00:00, 871.22it/s]Loading weights: 100%|██████████| 727/727 [00:01<00:00, 425.63it/s]
+Building graph:   0%|          | 0/158 [00:00<?, ?it/s]Building graph:   0%|          | 0/158 [00:11<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 257, in <module>
+    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test", dummy=False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 29, in __init__
+    self._build_graph()
+  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 104, in _build_graph
+    if self.assess_connectivity(node, modality, other_node, other_modality):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 203, in assess_connectivity
+    response = self.ask(prompt_data, dummy=self.dummy)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 219, in ask
+    output_ids = self.model.generate(**inputs, max_new_tokens=10, do_sample=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/peft/peft_model.py", line 2048, in generate
+    outputs = self.base_model.generate(*args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/generation/utils.py", line 2535, in generate
+    result = decoding_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/generation/utils.py", line 2728, in _sample
+    outputs = self._prefill(
+              ^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/generation/utils.py", line 3776, in _prefill
+    return self(**model_inputs, return_dict=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/generic.py", line 843, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/paligemma/modeling_paligemma.py", line 510, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/generic.py", line 843, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/paligemma/modeling_paligemma.py", line 403, in forward
+    outputs = self.language_model(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/generic.py", line 917, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/output_capturing.py", line 253, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/gemma2/modeling_gemma2.py", line 459, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/gemma2/modeling_gemma2.py", line 343, in forward
+    hidden_states = self.post_attention_layernorm(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/gemma2/modeling_gemma2.py", line 59, in forward
+    output = self._norm(x.float())
+                        ^^^^^^^^^
+KeyboardInterrupt
