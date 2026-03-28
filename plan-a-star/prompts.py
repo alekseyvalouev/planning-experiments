@@ -16,9 +16,11 @@ Grade the alignment between the plan (temporally ordered sequence of visited loc
 
 Scoring Metrics:
 
-Task-to-Go (Completion): An integer (0–100) representing the percentage of the task steps that have been successfully completed in the plan. Assign partial credit for partially completed steps.
+Task-to-Go (Completion): An integer (0–100) representing how many more seconds it will take to complete the task if you continue moving at this rate. 
 
-Alignment (Ordering): An integer (1–100) representing how closely the plan aligns with the task. The steps taken in the plan must be in the same order as the associated instructions in the task. Task irrelevant or out-of-order steps should receive a low alignment score. Ensure that the semantic sof the iamge or language provided in the plan is consistent with the task as well.
+Alignment (Ordering): An integer (1–100) representing how closely the plan aligns with the task. The steps taken in the plan must be in the same order as the associated instructions in the task. Task irrelevant or out-of-order steps should receive a low alignment score. Ensure that the semantics of the image or language provided in the plan is consistent with the task as well. If a step is skipped, the alignment score should be 0.
 
 Constraint: Output ONLY two integers separated by a space (e.g., 85 40). The first integer is Task-to-Go, and the second is Alignment.
 """
+
+ASDF = "Assign partial credit for partially completed steps or steps that could result in a subsequent step being completed, even if the subsequent step has not yet been taken."

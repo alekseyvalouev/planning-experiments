@@ -62,7 +62,7 @@ class Planner:
                 new_ctx = ctx + [self._load_modality(neighbor, neighbor_mod)]
                 h = cached_heuristic(path_key, ctx, neighbor, neighbor_mod)
                 new_path_key = path_key + ((neighbor.node_id, neighbor_mod),)
-                if h > 18:
+                if h > 9.5:
                     return path + [(neighbor, neighbor_mod)]
                 counter += 1
                 heapq.heappush(heap, (-h, counter, neighbor.node_id, neighbor_mod,
@@ -79,7 +79,7 @@ class Planner:
             node_info["image"] = image_bytes
         return node_info
     
-    def calculate_heuristic(self, context, new_node, modality, end_node, task, alpha=0.1, beta=0.1):
+    def calculate_heuristic(self, context, new_node, modality, end_node, task, alpha=0.1, beta=-0.1):
         context_new = context[:]
         context_new.append(self._load_modality(new_node, modality))
 
@@ -195,12 +195,12 @@ class Planner:
 
 
 if __name__ == "__main__":
-    my_graph = Graph.deserialize("single_graph.json")
+    my_graph = Graph.deserialize("graph.json")
     planner = Planner(my_graph)
-    start_node = my_graph.nodes[0]
+    start_node = my_graph.nodes[154]
     start_modality = "V"
     end_node = my_graph.nodes[6]
-    task = "Navigate along the hallway with the large glass windows on the left. Then go into the kitchen. Then go to the two brown doors."
+    task = "Go to the double doors at the end of the hallway."
     plan = planner.plan(start_node, start_modality, end_node, task)
 
     print(plan)

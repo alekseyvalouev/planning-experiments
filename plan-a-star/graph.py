@@ -271,12 +271,12 @@ class Node:
 
 
 if __name__ == "__main__":
-    scenes = [
-        "Feb-03-2023-bww8-intloss_00000013_1",   
-        "Dec-06-2022-bww8_00000007_0",
-        "Feb-09-2023-bww8-intloss_00000042_9",
-        "Feb-14-2023-bww8-intloss_00000008_25",
-        "Jan-12-2023-bww8_00000007_22"
+    scenes = ['Feb-15-2023-cory1_00000004_6', 
+    'Feb-16-2023-cory1-intloss_00000023_0', 
+    'Feb-15-2023-cory1_00000006_5', 
+    'Feb-15-2023-cory1_00000000_0', 
+    'Feb-16-2023-cory1-intloss_00000021_1', 
+    'Feb-15-2023-cory1_00000006_4'
     ]
-    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test", dummy=False)
+    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations", dummy=False)
     

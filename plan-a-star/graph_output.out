@@ -1,94 +1,12 @@
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 2092.44it/s]
-Loading weights:   0%|          | 0/727 [00:00<?, ?it/s]Loading weights:   0%|          | 3/727 [00:00<00:28, 25.79it/s]Loading weights:   5%|▍         | 36/727 [00:00<00:03, 188.27it/s]Loading weights:   8%|▊         | 60/727 [00:00<00:03, 210.56it/s]Loading weights:  12%|█▏        | 87/727 [00:00<00:02, 230.48it/s]Loading weights:  15%|█▌        | 111/727 [00:00<00:02, 231.13it/s]Loading weights:  19%|█▊        | 135/727 [00:00<00:02, 207.45it/s]Loading weights:  22%|██▏       | 157/727 [00:00<00:02, 193.24it/s]Loading weights:  26%|██▋       | 192/727 [00:00<00:02, 233.78it/s]Loading weights:  30%|██▉       | 218/727 [00:01<00:02, 239.95it/s]Loading weights:  33%|███▎      | 243/727 [00:01<00:02, 239.91it/s]Loading weights:  37%|███▋      | 268/727 [00:01<00:02, 213.61it/s]Loading weights:  40%|████      | 291/727 [00:01<00:02, 213.51it/s]Loading weights:  46%|████▌     | 331/727 [00:01<00:01, 259.63it/s]Loading weights:  51%|█████     | 371/727 [00:01<00:01, 296.59it/s]Loading weights:  83%|████████▎ | 605/727 [00:01<00:00, 871.22it/s]Loading weights: 100%|██████████| 727/727 [00:01<00:00, 425.63it/s]
-Building graph:   0%|          | 0/158 [00:00<?, ?it/s]Building graph:   0%|          | 0/158 [00:11<?, ?it/s]
-Traceback (most recent call last):
-  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 257, in <module>
-    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-test", dummy=False)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 29, in __init__
-    self._build_graph()
-  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 104, in _build_graph
-    if self.assess_connectivity(node, modality, other_node, other_modality):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 203, in assess_connectivity
-    response = self.ask(prompt_data, dummy=self.dummy)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/graph.py", line 219, in ask
-    output_ids = self.model.generate(**inputs, max_new_tokens=10, do_sample=False)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/peft/peft_model.py", line 2048, in generate
-    outputs = self.base_model.generate(*args, **kwargs)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/generation/utils.py", line 2535, in generate
-    result = decoding_method(
-             ^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/generation/utils.py", line 2728, in _sample
-    outputs = self._prefill(
-              ^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/generation/utils.py", line 3776, in _prefill
-    return self(**model_inputs, return_dict=True)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/generic.py", line 843, in wrapper
-    output = func(self, *args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/paligemma/modeling_paligemma.py", line 510, in forward
-    outputs = self.model(
-              ^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/generic.py", line 843, in wrapper
-    output = func(self, *args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/paligemma/modeling_paligemma.py", line 403, in forward
-    outputs = self.language_model(
-              ^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/generic.py", line 917, in wrapper
-    output = func(self, *args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/utils/output_capturing.py", line 253, in wrapper
-    outputs = func(self, *args, **kwargs)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/gemma2/modeling_gemma2.py", line 459, in forward
-    hidden_states = decoder_layer(
-                    ^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/modeling_layers.py", line 93, in __call__
-    return super().__call__(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/gemma2/modeling_gemma2.py", line 343, in forward
-    hidden_states = self.post_attention_layernorm(hidden_states)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/alekseyvalouev/miniconda3/envs/language-distance/lib/python3.11/site-packages/transformers/models/gemma2/modeling_gemma2.py", line 59, in forward
-    output = self._norm(x.float())
-                        ^^^^^^^^^
-KeyboardInterrupt
+To go:  0  for node  154
+Alignment:  100  for node  154
+Heuristic for node 154 with modality V is 10.0
+To go:  10  for node  1
+Alignment:  95  for node  1
+Heuristic for node 1 with modality L is 8.5
+To go:  0  for node  2
+Alignment:  100  for node  2
+Heuristic for node 2 with modality L is 10.0
+[(<graph.Node object at 0x7dec134076d0>, 'V'), (<graph.Node object at 0x7dec133e6c50>, 'L')]
+Plan saved to plan.json
+Plan figure saved to /home/alekseyvalouev/goalnav/planning-experiments/plan-a-star/plan.png
