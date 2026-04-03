@@ -197,10 +197,10 @@ class Planner:
 if __name__ == "__main__":
     my_graph = Graph.deserialize("graph.json")
     planner = Planner(my_graph)
-    start_node = my_graph.nodes[154]
+    start_node = my_graph.nodes[0]
     start_modality = "V"
     end_node = my_graph.nodes[6]
-    task = "Go to the double doors at the end of the hallway."
+    task = "First go to the kitchen. Then go to the area with two dark doors."
     plan = planner.plan(start_node, start_modality, end_node, task)
 
     print(plan)

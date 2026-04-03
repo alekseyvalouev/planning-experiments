@@ -12,7 +12,7 @@ from peft import PeftModel
 from tqdm import tqdm
 
 MODEL_ID    = "google/paligemma2-3b-pt-224"
-CHECKPOINT  = "/home/alekseyvalouev/goalnav/language-distance/binary-reachability-paligemma/checkpoint-3900"
+CHECKPOINT  = "/home/alekseyvalouev/goalnav/language-distance/language-distance-paligemma-multimodal-new-labels/checkpoint-3200"
 BATCH_SIZE  = 64
 
 class Graph:
@@ -118,7 +118,7 @@ class Graph:
             results.extend(self.ask(batch, dummy=self.dummy))
 
         for (node, modality, other_node, other_modality), response in zip(pairs, results):
-            if response == "1":
+            if response <= 4:
                 node.add_connection(modality, other_node, other_modality)
     
     def serialize(self, path):
@@ -243,7 +243,7 @@ class Graph:
             input_len = inputs["input_ids"].shape[1]
             decoded = self.processor.batch_decode(output_ids[:, input_len:], skip_special_tokens=True)
             for orig_idx, response in zip(indices, decoded):
-                results[orig_idx] = response.strip()
+                results[orig_idx] = int(response.strip())
 
         return results
 
@@ -278,5 +278,6 @@ if __name__ == "__main__":
     'Feb-16-2023-cory1-intloss_00000021_1', 
     'Feb-15-2023-cory1_00000006_4'
     ]
-    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations", dummy=False)
+    #scenes = ["Dec-06-2022-bww8_00000007_0"]
+    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-other-new", dummy=False)
     
