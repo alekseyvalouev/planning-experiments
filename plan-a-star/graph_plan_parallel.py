@@ -1,9 +1,11 @@
 from pathlib import Path
+import asyncio
 import heapq
 import json
 import os
 from typing import Tuple
 from PIL import Image
+import re
 
 from dotenv import load_dotenv
 from google import genai
@@ -15,7 +17,7 @@ from prompts import COMBINED_PROMPT, TASK_ALIGNMENT_PROMPT, TASK_TO_GO_PROMPT
 import sys
 sys.path.append("..")
 
-from omnivla.uncertainty_heuristic import infer_action_V_V, infer_action_V_VL, infer_action_V_L, setup_omnivla, calculate_action_distance
+#from omnivla.uncertainty_heuristic import infer_action_V_V, infer_action_V_VL, infer_action_V_L, setup_omnivla, calculate_action_distance
 
 load_dotenv(".env")
 
@@ -24,24 +26,19 @@ class Planner:
     def __init__(self, graph):
         self.graph = graph
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        self.omnivla_inference = setup_omnivla()
+        #self.omnivla_inference = setup_omnivla()
 
     def plan(self, start_node, start_modality, end_node, task, end_info=None):
         context = [self._load_modality(start_node, start_modality)]
         _heuristic_cache = {}
 
-        def cached_heuristic(path_key, ctx, node, modality, landmark_idx):
-            cache_key = path_key + ((node.node_id, modality, landmark_idx),)
-            if cache_key not in _heuristic_cache:
-                _heuristic_cache[cache_key] = self.calculate_heuristic(
-                    ctx, node, modality, end_node, task, end_info, landmark_idx=landmark_idx
-                )
-            print("Heuristic for node", node.node_id, "modality", modality,
-                  "landmark_idx", landmark_idx, "is", _heuristic_cache[cache_key])
-            return _heuristic_cache[cache_key]
-
-        start_path_key = ()
-        start_h = cached_heuristic(start_path_key, [], start_node, start_modality, None)
+        start_cache_key = ((start_node.node_id, start_modality, None),)
+        start_h = self.calculate_heuristic(
+            [], start_node, start_modality, end_node, task, end_info
+        )
+        _heuristic_cache[start_cache_key] = start_h
+        print("Heuristic for node", start_node.node_id, "modality", start_modality,
+              "landmark_idx", None, "is", start_h)
 
         # heap entries: (neg_h, tie_counter, node_id, modality, landmark_idx,
         #                path_key, path, context)
@@ -60,6 +57,8 @@ class Planner:
                 continue
             visited.add(state)
 
+            candidates = []
+            uncached_indices = []
             for neighbor in cur_node.connections:
                 for neighbor_mod in neighbor.modalities:
                     landmarks = neighbor.subnodes[neighbor_mod].get("landmarks", [])
@@ -68,17 +67,38 @@ class Planner:
                     for li in landmark_indices:
                         if (neighbor.node_id, neighbor_mod, li) in visited:
                             continue
+                        cache_key = path_key + ((neighbor.node_id, neighbor_mod, li),)
+                        ctx_item = self._load_modality(neighbor, neighbor_mod, landmark_idx=li)
+                        candidates.append((neighbor, neighbor_mod, li, cache_key, ctx_item))
+                        if cache_key not in _heuristic_cache:
+                            uncached_indices.append(len(candidates) - 1)
 
-                        new_ctx = ctx + [self._load_modality(neighbor, neighbor_mod, landmark_idx=li)]
-                        h = cached_heuristic(path_key, ctx, neighbor, neighbor_mod, li)
-                        new_path_key = path_key + ((neighbor.node_id, neighbor_mod, li),)
-                        if h > 9.5:
-                            return path + [(neighbor, neighbor_mod, li)]
-                        counter += 1
-                        heapq.heappush(heap, (
-                            -h, counter, neighbor.node_id, neighbor_mod, li,
-                            new_path_key, path + [(neighbor, neighbor_mod, li)], new_ctx
-                        ))
+            if uncached_indices:
+                plans_to_grade = [ctx[:] + [candidates[i][4]] for i in uncached_indices]
+                grade_results = asyncio.run(
+                    self._batch_combined_grades(plans_to_grade, task)
+                )
+                alpha, beta = 0.1, -0.1
+                for j, idx in enumerate(uncached_indices):
+                    neighbor, mod, li, cache_key, _ = candidates[idx]
+                    to_go, alignment = grade_results[j]
+                    print("To go: ", to_go, " for node ", neighbor.node_id)
+                    print("Alignment: ", alignment, " for node ", neighbor.node_id)
+                    h = alignment * alpha + to_go * beta
+                    _heuristic_cache[cache_key] = h
+                    print("Heuristic for node", neighbor.node_id, "modality", mod,
+                          "landmark_idx", li, "is", h)
+
+            for neighbor, mod, li, cache_key, ctx_item in candidates:
+                h = _heuristic_cache[cache_key]
+                if h > 9.5:
+                    return path + [(neighbor, mod, li)]
+                new_path_key = path_key + ((neighbor.node_id, mod, li),)
+                counter += 1
+                heapq.heappush(heap, (
+                    -h, counter, neighbor.node_id, mod, li,
+                    new_path_key, path + [(neighbor, mod, li)], ctx + [ctx_item]
+                ))
 
         return None  # no path found
     
@@ -155,35 +175,74 @@ class Planner:
             contents=contents,
         )
         return int(response.text.strip())
-    
-    def combined_grade(self, plan, task) -> Tuple[int, int]:
-        contents = []
-        
-        contents.append(COMBINED_PROMPT)
 
-        contents.append("Task:")
+    def _build_combined_contents(self, plan, task):
+        contents = [COMBINED_PROMPT, "Task:"]
         for item in task:
             if isinstance(item, str):
                 contents.append(item)
             else:
                 contents.append(genai.types.Part.from_bytes(data=item, mime_type="image/jpeg"))
 
-        contents.append("Plan (MUST BE TEMPORALLY CONSISTENT WITH THE TASK. NO OUT OF ORDER STEPS.):")
+        contents.append("Plan:")
         for i, step in enumerate(plan):
             contents.append(f"Step {i + 1}:")
             if "image" in step:
                 contents.append(genai.types.Part.from_bytes(data=step["image"], mime_type="image/jpeg"))
             if "landmarks" in step:
                 landmarks_text = " ".join(step["landmarks"])
-                contents.append(f"{landmarks_text}")
+                contents.append(landmarks_text)
+        return contents
+    
+    def _parse_llm_scores(self, llm_response):
+        # The regex looks for two groups of digits separated by space, at the very end of the text
+        pattern = r"(\d+)\s+(\d+)\s*$"
+        
+        # re.search scans the string for the pattern
+        match = re.search(pattern, llm_response.strip())
+        
+        if match:
+            # Extract the two captured groups and convert them to integers
+            task_to_go = int(match.group(1))
+            alignment = int(match.group(2))
+            return task_to_go, alignment
+        else:
+            # Fallback/Error handling if the LLM completely failed to output numbers
+            print("Warning: Could not parse integers from LLM response.")
+            print(f"Raw response: {llm_response}")
+            # Return default penalty scores so your A* planner doesn't crash
+            return 100, 0
 
-
+    def combined_grade(self, plan, task) -> Tuple[int, int]:
+        contents = self._build_combined_contents(plan, task)
         response = self.client.models.generate_content(
-            #model="gemini-3.1-flash-lite-preview",
-            model="gemini-3-flash-preview",
+            model="gemini-3.1-pro-preview",
+            #model="gemini-3-flash-preview",
             contents=contents,
         )
-        return tuple(int(x) for x in response.text.strip().split(" "))
+        return self._parse_llm_scores(response.text.strip())
+
+    async def _async_combined_grade(self, plan, task) -> Tuple[int, int]:
+        contents = self._build_combined_contents(plan, task)
+        try:
+            response = await self.client.aio.models.generate_content(
+                model="gemini-3.1-pro-preview",
+                #model="gemini-3-flash-preview",
+                contents=contents,
+            )
+        except Exception as e:
+            print("Error generating content: ", e)
+            return await self._async_combined_grade(plan, task)
+
+        try:
+            return self._parse_llm_scores(response.text.strip())
+        except Exception as e:
+            print("Error parsing response: ", response.text)
+            return await self._async_combined_grade(plan, task)
+
+    async def _batch_combined_grades(self, plans, task):
+        coros = [self._async_combined_grade(plan, task) for plan in plans]
+        return await asyncio.gather(*coros)
 
     def grade_alignment(self, plan, task) -> int:
         contents = []
@@ -218,10 +277,10 @@ class Planner:
 if __name__ == "__main__":
     my_graph = Graph.deserialize("graph_no_drop.json")
     planner = Planner(my_graph)
-    start_node = my_graph.nodes[0]
+    start_node = my_graph.nodes[45]
     start_modality = "V"
     end_node = my_graph.nodes[6]
-    task = "Go to the ladder. Then go to the end of the hallway. Then turn left."
+    task = "First, go down the hall past the scooter. Then, pass the pallet and lockers. Next, continue past the wooden doors. Finally, stop at the ladder before the double doors."
     end_info = {
         "text": "Go to the ladder"
     }

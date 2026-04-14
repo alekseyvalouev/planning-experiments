@@ -19,10 +19,11 @@ def _modality_includes_language(modality: str) -> bool:
 
 def _coerce_plan_input(plan, task: str | None) -> tuple[list, str | None]:
     """
-    Normalize to a list of (node_like, modality) where node_like has .node_id and .info.
+    Normalize to a list of (node_like, modality, landmark_idx) where node_like has
+    .node_id and .info.
 
     Accepts:
-    - Sequence of (Node, modality) from the planner
+    - Sequence of (Node, modality, landmark_idx) from the planner
     - dict in exported plan.json shape (keys: task, steps, ...)
     - str | Path to a JSON file with that dict shape
     """
@@ -37,16 +38,67 @@ def _coerce_plan_input(plan, task: str | None) -> tuple[list, str | None]:
         for step in plan.get("steps") or []:
             node_id = step["node_id"]
             modality = step["modality"]
+            landmark_idx = step.get("landmark_idx")
             info = {
                 "id": step.get("frame_id", node_id),
                 "image": step.get("image"),
                 "landmarks": step.get("landmarks"),
             }
             node = SimpleNamespace(node_id=node_id, info=info)
-            steps_out.append((node, modality))
+            steps_out.append((node, modality, landmark_idx))
         return steps_out, effective_task
 
     return plan, task
+
+
+def visualize_node_sequence_to_file(
+    sequence,
+    out_path: str | Path,
+    *,
+    task: str | None = None,
+    dpi: int = 120,
+    max_cols: int = 8,
+    show: bool = False,
+) -> Path:
+    """
+    Render a generated graph path (a list of :class:`Node`) to a PNG.
+
+    Chooses a display modality per node (``VL`` > ``V`` > ``L``) so images and
+    landmark text match :func:`visualize_plan_to_file` behavior.
+
+    If ``show`` is True, opens an interactive matplotlib window after saving
+    (requires a display backend).
+    """
+    if not sequence:
+        out_path = Path(out_path)
+        _render_empty_plan(out_path, task=task, dpi=dpi)
+        if show:
+            plt.figure(figsize=(6, 3))
+            plt.imshow(plt.imread(out_path))
+            plt.axis("off")
+            plt.tight_layout()
+            plt.show()
+        return out_path.resolve()
+
+    plan: list = []
+    for node in sequence:
+        modalities = getattr(node, "modalities", None) or []
+        if "VL" in modalities:
+            modality = "VL"
+        elif "V" in modalities:
+            modality = "V"
+        else:
+            modality = "L"
+        plan.append((node, modality, None))
+
+    out = visualize_plan_to_file(plan, out_path, task=task, dpi=dpi, max_cols=max_cols)
+    if show:
+        plt.figure(figsize=(min(18, 2.2 * len(sequence) + 2), 9))
+        plt.imshow(plt.imread(out))
+        plt.axis("off")
+        plt.tight_layout()
+        plt.show()
+    return out
 
 
 def visualize_plan_to_file(
@@ -102,14 +154,18 @@ def visualize_plan_to_file(
         if idx >= n:
             continue
 
-        node, modality = plan[idx]
+        node, modality, landmark_idx = plan[idx]
         info = node.info
         frame_id = info.get("id", node.node_id)
         title = f"Step {idx + 1}  ·  node {node.node_id}  ·  {modality}  ·  frame {frame_id}"
+        if landmark_idx is not None:
+            title += f"  ·  lm {landmark_idx}"
         ax.set_title(title, fontsize=9, pad=6)
 
         image_path = info.get("image")
         landmarks = info.get("landmarks")
+        if landmark_idx is not None and landmarks:
+            landmarks = [landmarks[landmark_idx]]
 
         plotted = False
         if image_path and isinstance(image_path, str) and Path(image_path).is_file():
@@ -134,7 +190,7 @@ def visualize_plan_to_file(
             )
             ax.set_facecolor("#f4f4f4")
         elif plotted and _modality_includes_language(modality) and landmarks:
-            body = "\n".join(f"• {lm}" for lm in landmarks)
+            body = "\n".join(f"• go to the {lm}" for lm in landmarks)
             ax.text(
                 0.5,
                 -0.08,

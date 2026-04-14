@@ -16,7 +16,7 @@ CHECKPOINT  = "/home/alekseyvalouev/goalnav/language-distance/language-distance-
 BATCH_SIZE  = 64
 
 class Graph:
-    def __init__(self, scenes, annotation_folder, sparsification_steps=4, drop_modality_p=0.5, dummy=False):
+    def __init__(self, scenes, annotation_folder, sparsification_steps=4, drop_modality_p=0.5, dummy=False, name="graph.json"):
         self.model_id = MODEL_ID
         self.checkpoint = CHECKPOINT
         self.dummy = dummy
@@ -29,7 +29,7 @@ class Graph:
         # we need to build a graph from the scenes.
         self._load_scenes() # data looks like an array of dictionaries, each dictionary contains the information for a single node.
         self._build_graph()
-        self.serialize("graph.json")
+        self.serialize(name)
     
     def _load_paligemma(self):
         bnb_config = BitsAndBytesConfig(
@@ -83,43 +83,59 @@ class Graph:
         return self.structured_data
 
     def _build_graph(self):
-        # first, create nodes of each point in the environment, each node has up to 3 subnodes, one for each
-        # modality combination ("V", "L", "VL").
-        # then iterate through each subnode. for each subnode, iterate through all remaining subnodes 
-        # and assess connectivity. if the two subnodes are connected, add an edge to the graph between the
-        # subnodes. Each node should contain information about edges, including which subnodes are connected.
-        # the cost of each edge is the same. we do not care about this information. EDGES ARE DIRECTED. COMPARISONS
-        # SHOULD BE MADE BOTH WAYS. 
+        # Connectivity is at the node (parent) level: if ANY subnode pair between two
+        # nodes is connected, the nodes are connected.  Once a directed pair (A→B) is
+        # found connected we skip all remaining subnode comparisons for that pair.
         self.nodes = [Node(i, info) for i, info in enumerate(self.structured_data)]
 
-        # build flat list of (node, modality) subnodes for pairwise comparison
         subnodes = [
             (node, modality)
             for node in self.nodes
             for modality in node.modalities
         ]
 
-        # collect all valid pairs and their prepared prompt data upfront
         pairs = []
         prompt_data_list = []
         for i, (node, modality) in enumerate(subnodes):
             for j, (other_node, other_modality) in enumerate(subnodes):
-                if i == j:
+                if node.node_id == other_node.node_id:
                     continue
                 pd = self._prepare_prompt_data(node, modality, other_node, other_modality)
                 if pd is not None:
                     pairs.append((node, modality, other_node, other_modality))
                     prompt_data_list.append(pd)
 
-        # run inference in batches
-        results = []
-        for start in tqdm(range(0, len(prompt_data_list), BATCH_SIZE), desc="Building graph"):
-            batch = prompt_data_list[start : start + BATCH_SIZE]
-            results.extend(self.ask(batch, dummy=self.dummy))
+        connected = set()
+        pos = 0
+        pbar = tqdm(total=len(pairs), desc="Building graph")
 
-        for (node, modality, other_node, other_modality), response in zip(pairs, results):
-            if response <= 4:
-                node.add_connection(modality, other_node, other_modality)
+        while pos < len(pairs):
+            batch_pairs = []
+            batch_prompts = []
+
+            while pos < len(pairs) and len(batch_pairs) < BATCH_SIZE:
+                node, modality, other_node, other_modality = pairs[pos]
+                pd = prompt_data_list[pos]
+                pos += 1
+                pbar.update(1)
+
+                if (node.node_id, other_node.node_id) in connected:
+                    continue
+
+                batch_pairs.append((node, modality, other_node, other_modality))
+                batch_prompts.append(pd)
+
+            if not batch_pairs:
+                continue
+
+            results = self.ask(batch_prompts, dummy=self.dummy)
+
+            for (node, modality, other_node, other_modality), response in zip(batch_pairs, results):
+                if response <= 4 and (node.node_id, other_node.node_id) not in connected:
+                    connected.add((node.node_id, other_node.node_id))
+                    node.add_connection(other_node)
+
+        pbar.close()
     
     def serialize(self, path):
         data = {
@@ -133,8 +149,8 @@ class Graph:
                     "modalities": node.modalities,
                     "subnodes": node.subnodes,
                     "connections": [
-                        {"modality": m, "other_node_id": other.node_id, "other_modality": om}
-                        for m, other, om in node.connections
+                        {"other_node_id": other.node_id}
+                        for other in node.connections
                     ],
                 }
                 for node in self.nodes
@@ -157,7 +173,7 @@ class Graph:
         for n, node in zip(data["nodes"], instance.nodes):
             node.subnodes = n.get("subnodes", node.subnodes)
             for conn in n["connections"]:
-                node.add_connection(conn["modality"], node_by_id[conn["other_node_id"]], conn["other_modality"])
+                node.add_connection(node_by_id[conn["other_node_id"]])
         return instance
 
     def _load_image(self, image_path):
@@ -264,10 +280,10 @@ class Node:
         if "image" in info.keys() and "landmarks" in info.keys():
             self.modalities.append("VL")
             self.subnodes["VL"] = {"image": info["image"], "landmarks": info["landmarks"]}
-        self.connections = [] # triple (modality, other_node, other_modality)
+        self.connections = []
     
-    def add_connection(self, modality, other_node, other_modality):
-        self.connections.append((modality, other_node, other_modality))
+    def add_connection(self, other_node):
+        self.connections.append(other_node)
 
 
 if __name__ == "__main__":
@@ -279,5 +295,5 @@ if __name__ == "__main__":
     'Feb-15-2023-cory1_00000006_4'
     ]
     #scenes = ["Dec-06-2022-bww8_00000007_0"]
-    graph = Graph(scenes=scenes, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-other-new", dummy=False)
+    graph = Graph(scenes=scenes, drop_modality_p=0.0, annotation_folder="/home/alekseyvalouev/goalnav/language-annotations-other-new", dummy=False, name='graph_no_drop.json')
     
