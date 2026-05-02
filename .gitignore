@@ -1,4 +1,7 @@
 .env
-*.out
+*/*.out
 *.png
 *.json
+*.html
+*.gif
+*/trajectory_vids/*
