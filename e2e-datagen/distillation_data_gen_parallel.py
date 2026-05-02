@@ -3,6 +3,7 @@ import asyncio
 import heapq
 import json
 import os
+import sys
 from typing import Tuple
 from PIL import Image
 import re
@@ -13,12 +14,13 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import errors as genai_errors
 
-from graph import Graph, Node
+PLAN_A_STAR_DIR = Path(__file__).resolve().parents[1] / "plan-a-star"
+if str(PLAN_A_STAR_DIR) not in sys.path:
+    sys.path.insert(0, str(PLAN_A_STAR_DIR))
+
+from graph_io import Graph, Node
 from plan_visualization import visualize_plan_to_file
 from prompts import COMBINED_PROMPT, TASK_ALIGNMENT_PROMPT, TASK_TO_GO_PROMPT
-
-import sys
-sys.path.append("..")
 
 #from omnivla.uncertainty_heuristic import infer_action_V_V, infer_action_V_VL, infer_action_V_L, setup_omnivla, calculate_action_distance
 

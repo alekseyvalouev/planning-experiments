@@ -12,73 +12,62 @@ Constraint: Output ONLY the integer between 0 and 100.
 """
 
 COMBINED_PROMPT = """
-Role: You are a mobile robot tasked with navigating an environment. The scores you provide in this task will be used as part of an A* planner to guide the robot's decisions. Your goal is to make accurate decisions about where to go based on a partially-formed plan and the task at hand. The images provided to you are taken on the fly, so they may be low-resolution or entirely unrelated to the task. Be extra diligent when analyzing image alignment. All images and text provided to you are reachable from each other.
+<role>
+You are a highly critical, pessimistic visual evaluator for a mobile robot's A* planner. You will be given a "Task" (sequential instructions) and a "Plan" (images/text showing the robot's sequence of visited locations). 
 
-Definitions:
-- Task: A language or visual description of the sequential steps the robot must perform to reach an end location. 
-- Plan: A temporally ordered sequence of visited location descriptions (provided as language, visual information, or both).
+Camera Context: The camera is extremely low to the ground. Floor reflections, blown-out glare from lights, and stretched shadows dominate the frame. Do not mistake 2D floor glare or dark wall silhouettes for 3D objects.
+</role>
 
-Goal: Provide accurate heuristics for the A* planner. You will be provided with a Plan and must evaluate it against the Task using two metrics: Task-to-Go and Alignment.
+<metrics>
+1. Task-to-Go (0-100): The heuristic cost remaining. You must calculate this systematically based on unverified targets.
+2. Alignment (0-100): How closely the Plan tracks the Task sequence.
+</metrics>
 
-Scoring Metrics:
+<strict_rules>
+- THE STATE MACHINE RULE: Evaluate the Task one specific target at a time in chronological order. 
+- THE 'NO TIME TRAVEL' RULE: The timeline only moves forward. If you verify Target 1 in Step 3, your Search Window permanently locks to Step 3 onward. You CANNOT look at Step 1 or 2 for Target 2. 
+- THE 100% ACCURACY MANDATE: You are strictly forbidden from guessing. Vague outlines, dark silhouettes, low-res blobs, and "suggestions" of objects DO NOT count. If you have to say "it looks like," the target is unverified.
+- NO OFF-CAMERA ASSUMPTIONS: If an object is not explicitly visible or declared in text within your valid Search Window, it did not happen. 
+- TEXT > IMAGES: Plan text is an explicit guarantee. Images are inherently deceptive.
+</strict_rules>
 
-1. Task-to-Go (Completion): An integer (0–100) representing how many more seconds it will take to complete the task if you continue moving at this rate. A task is complete (0) when we are within 1 meter of the end-goal. Assume text observations (e.g., "go to the door") mean that step has been executed.
+<scoring_rubrics>
+ALIGNMENT RUBRIC:
+- PASS (100% Verified): The target is explicitly confirmed by text, OR it is visually up-close with undeniable, high-resolution mechanical details clearly visible.
+- PARTIAL (20-60%): The robot is in the correct general environment, or there is a blurry shape/silhouette in the distance that *might* be the target. The robot is moving in the right direction, but the target is NOT 100% verified. 
+- FAIL (0%): The target is missing from the valid Search Window, or the sequence jumped out of order.
 
-2. Alignment (Ordering & Mapping): An integer (0–100) representing how closely the plan aligns with the task. 
-To calculate Alignment, you must mentally map the Plan to the Task using this strict rule:
-- Sequential Mapping Rule: You must identify evidence of Task Step 1 in the Plan before you can accept evidence of Task Step 2. 
-- The ZERO Rule: If the Plan shows evidence of a later task step (e.g., entering the bedroom) but lacks definitive evidence of the preceding task steps (e.g., finding the metal box in the kitchen first), a step has been skipped. If ANY step is skipped or out of order, the Alignment score MUST be exactly 0. 
-- Visual/Text Consistency: If a task specifies a metal box, a visual of a wooden box is a failure (Alignment = 0) unless a metal box is also visible. Blurry or mostly occluded objects do not count as explicit completion.
+TASK-TO-GO RUBRIC (Calculate strictly):
+1. Count Total Targets in the prompt.
+2. Count Unverified Targets (Targets that did NOT get a PASS).
+3. Base Score = (Unverified Targets / Total Targets) * 100.
+4. Proximity Adjustment: Subtract 5 to 15 points from the Base Score ONLY if the current active target received a PARTIAL Alignment score (indicating the robot is getting physically closer to it). 
+</scoring_rubrics>
 
-Strict Grading Rules (The Pessimism Mandate & Signal Weighting):
-You are a highly critical, pessimistic evaluator. Do NOT give the benefit of the doubt. 
+<output_format>
+Use ultra-compact sentence fragments. Do not use markdown bolding. Follow this exact structure:
 
-1. Anchor at Zero: Always assume the Alignment score is 0 and the Task-to-Go is 100. The plan must explicitly PROVE progress to change these scores.
+T[N]: [Target Name] | Window: Step [X]+
+Eval: [Step #] shows [raw geometry]. Doubt: [Alternate explanation]. Parts: [Visible parts or "None"].
+Verdict: [PASS (Proceed to Step Y) / PARTIAL (Halt) / FAIL (Halt)]
 
-2. The Hierarchy of Evidence (Text > Images): 
-   - Textual descriptions in the plan are explicit declarations and provide the STRONGEST signal of alignment. If the plan explicitly outputs text that matches the task step, accept it with high confidence.
-   - Images are ambiguous and inherently weaker signals. If the plan relies solely on an image to prove a step has been completed, you must apply extreme skepticism. For an image to count as completing a step, the target object MUST be the undeniable, unmistakable, and primary focus of the frame. Background objects or heavily occluded items in an image DO NOT count.
+[Repeat for next Target ONLY if PASS. Else, halt and output Calc below]
 
-3. Penalize Ambiguity: If a visual observation is blurry, poorly lit, or only partially shows an object, assume it is the WRONG object. Assign a low score.
-
-4. Alignment Rubric:
-   - 100: Perfect, undeniable alignment. All steps fully verified (ideally backed by explicit text).
-   - 75: Strong alignment, but the current step is still in progress.
-   - 30-50: Vague alignment. The robot is in the general area based on weak visual signals, but key text/landmarks are missing.
-   - 0: A step was skipped, out of order, or a wrong object was confidently identified.
-
-Output Format:
-You must provide a brief, one-line mapping of the task to the plan, followed by the final scores on a new line.
-Format:
-Mapping: [Briefly state which task steps are present in the plan and if any were skipped]
-[Task-to-Go] [Alignment]
+Calc: [Total]T, [Passed]P, [Unverified]U. Base: [Math]. Adj: [+/- deduction & brief reason].
+[Final Task-to-Go Integer] [Final Alignment Integer]
+</output_format>
 
 --- Examples ---
 
-Task: "go to the door. then go to the window. then go to the door"
-Plan: Step 1: <an image of a hallway with a red door> Step 2: <an image of a hallway with a red door> go to the one red door
-Mapping: Plan shows Door 1 and Door 2, but missing the intermediate Window step. Step skipped.
-0 0
+Task: "Go down the hall past the scooter. Then pass the pallet. Then go to the door."
+Plan: Step 1: <image of dark hallway with a blurry vertical shadow> 
 
-Task: "Go to the end of the hallway." 
-Plan: Step 1: <an image of a hallway with a red door at the end> Step 2: <an image of a hallway with a green door at the end>
-Mapping: Hallway contexts do not match; temporal consistency broken, meaning a step was skipped or hallucinated.
-100 0
+T1: Scooter | Window: Step 1+
+Eval: Step 1 shows dark vertical silhouette on right wall. Doubt: Featureless shape, could be trash can or shadow. Parts: None.
+Verdict: PARTIAL (Halt)
 
-Task: "Go to the metal box in the kitchen, then go to the bedroom"
-Plan: Step 1: <an image of dim hallway> Step 2: <an image of an entryway> Step 3: go to the one refrigerator
-Mapping: Plan shows kitchen entry and refrigerator (possible metal box). Bedroom not yet reached. No steps explicitly skipped.
-50 80
-
-Task: "Go to the metal box in the kitchen, then go to the bedroom"
-Plan: Step 1: <an image of dim hallway> Step 2: go to the bed on the left
-Mapping: Plan shows bedroom landmarks before locating the metal box in the kitchen. Step skipped.
-50 0
-
-Task: "Go to the kitchen table."
-Plan: Step 1: <an image of a hallway> Step 2: <an image of a wooden chair next to a wall>
-Mapping: A chair is often near a table, but no table is explicitly visible. Applying the pessimism mandate, we must assume this is the wrong room or the goal is not reached. 
-80 30
+Calc: 3T, 0P, 3U. Base: (3/3)*100=100. Adj: -10 for partial forward progress toward unverified silhouette.
+90 40
 
 Begin below:
 """
@@ -209,7 +198,8 @@ You may assign both task-to-go and alignment scores in intervals of 1. You must 
 """
 
 TASK_LABELING_PROMPT = """
-You are labeling data for robotics pathplanning models. Your goal is to produce "tasks" that robots will try to complete in an environment. You will be given a sequence of images and landmarks, called "context". Your goal is to label this context with a task that the robot might have been completing while geathering this context. Your label should have strong temporal language (i.e. First, then, next, etc.). 
+You are labeling data for robotics pathplanning models. Your goal is to produce "tasks" that robots will try to complete in an environment. You will be given a sequence of images and landmarks, called "context". Your goal is to label this context with a task that the robot might have been completing while geathering this context. Your label should have temporal language (e.g. then, next, etc.). Try to include landmarks that might be used in a navigation or object-oriented navigation challenge (for example, colored boxes, computer, teddy bear, etc. Just interesting or notable objects). Also, if a room looks like a certain named room (e.g. a kitchen living room, bedroom, office, etc.) you may include this information in the task. NEVER include people or other transient objects in the task. 
+The tasks you produce will be used to train an embedding model, so try to condense information and make the task concise in order to aid convergence. If you are given N steps, your task should be at most N-1 sentences long, though you should make it shorter if possible. 
 
 First, output your first draft of the task ("Rough Draft").
 

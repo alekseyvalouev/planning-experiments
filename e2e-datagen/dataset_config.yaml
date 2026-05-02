@@ -1,0 +1,55 @@
+version: "1.0.0"
+dataset_name: full-distillation-dataset
+random_seed: 42
+
+data_root: /hdd/sacson
+output_root: /hdd/aleksey_cache/full-distillation-dataset
+
+gcs:
+  project_id: cat-gen-lang-proj
+  location: global
+  bucket_name: landmark-annotations
+  staging_prefix: landmark_batch_job
+
+vertex:
+  model_id: gemini-3.1-pro-preview
+  max_upload_workers: 16
+  skip_existing_uploads: true
+
+graph:
+  sparsification_steps: 4
+  drop_modality_p: 0.0
+  dummy: false
+  batch_size: 16
+  device: cuda:1
+  checkpoint: /home/alekseyvalouev/goalnav/vint.pth
+
+task_generation:
+  builder_prune_fraction: 0.3
+
+splits:
+  train:
+    labels_dir: labels/train
+    long_tasks_per_location: 30
+    short_tasks_per_location: 20
+    locations:
+      cory1:
+        root: /hdd/sacson
+        scenes: location_scenes/cory1.txt
+      cory5:
+        root: /hdd/gnm_dataset/cory_hall
+        scenes: location_scenes/cory5.txt
+      bww1:
+        root: /hdd/sacson
+        scenes: location_scenes/bww1.txt
+      bww2:
+        root: /hdd/sacson
+        scenes: location_scenes/bww2.txt
+  validation:
+    labels_dir: labels/test
+    long_tasks_per_location: 30
+    short_tasks_per_location: 20
+    locations:
+      soda3:
+        root: /hdd/sacson
+        scenes: location_scenes/soda3.txt

@@ -3,27 +3,31 @@
 # to get the context. Select random modalities along the way. Then we generate a task
 # by prompting gemini. 
 
-from dotenv import load_dotenv
-from google import genai
-
-from graph import Graph, Node
-from plan_visualization import visualize_node_sequence_to_file
-
-from prompts import TASK_LABELING_PROMPT
-
 import random
 import os
 import sys
-sys.path.append("..")
+from pathlib import Path
+
+from dotenv import load_dotenv
+from google import genai
+
+PLAN_A_STAR_DIR = Path(__file__).resolve().parents[1] / "plan-a-star"
+if str(PLAN_A_STAR_DIR) not in sys.path:
+    sys.path.insert(0, str(PLAN_A_STAR_DIR))
+
+from graph_io import Graph, Node
+from plan_visualization import visualize_node_sequence_to_file
+from prompts import TASK_LABELING_PROMPT
 
 load_dotenv(".env")
 
 class TaskBuilder:
-    def __init__(self, graph_file):
+    def __init__(self, graph_file, prune_fraction=0.3, seed=42):
         self.graph = Graph.deserialize(graph_file)
-        self._random_prune(prune_fraction=0.3)
+        self.prune_fraction = prune_fraction
+        random.seed(seed)
+        self._random_prune(prune_fraction=prune_fraction)
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        random.seed(42)
     
     # use single_step=True to generate xshort tasks
     def generate_task(self, single_step=False):
